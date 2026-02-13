@@ -1,31 +1,69 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36212.18 d17.14
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication2", "ConsoleApplication2\ConsoleApplication2.vcxproj", "{B13771D3-F297-472B-B17A-E5AFA5EF3B57}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Debug|x64.ActiveCfg = Debug|x64
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Debug|x64.Build.0 = Debug|x64
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Debug|x86.ActiveCfg = Debug|Win32
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Debug|x86.Build.0 = Debug|Win32
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Release|x64.ActiveCfg = Release|x64
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Release|x64.Build.0 = Release|x64
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Release|x86.ActiveCfg = Release|Win32
-		{B13771D3-F297-472B-B17A-E5AFA5EF3B57}.Release|x86.Build.0 = Release|Win32
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4DB70B85-295C-4576-9739-871502B29BAE}
-	EndGlobalSection
-EndGlobal
+﻿#include <iostream>
+#include <fstream>
+#include <conio.h>
+#include <string>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    
+    cout << "Мониторинг файла Z:/fi.txt" << endl;
+    cout << "Нажмите ESC для выхода..." << endl;
+    cout << "----------------------------------------" << endl;
+    
+    streamsize lastSize = -1;
+    int k = _getch();
+    
+    while (k != 27)
+    {
+        fstream f;
+        f.open("Z:/fi.txt", ios::in | ios::binary);
+        
+        if (f)
+        {
+            f.seekg(0, ios::end);
+            streamsize currentSize = f.tellg();
+            f.close();
+            
+            if (currentSize != lastSize)
+            {
+                if (lastSize != -1) // Пропускаем первое сообщение
+                {
+                    if (currentSize > lastSize)
+                    {
+                        cout << ">>> ОБНАРУЖЕНЫ ИЗМЕНЕНИЯ! (+" << (currentSize - lastSize) << " байт)" << endl;
+                    }
+                    else
+                    {
+                        cout << ">>> ФАЙЛ БЫЛ УМЕНЬШЕН! (было: " << lastSize << ", стало: " << currentSize << " байт)" << endl;
+                    }
+                    cout << "----------------------------------------" << endl;
+                }
+                else
+                {
+                    cout << "Текущий размер файла: " << currentSize << " байт" << endl;
+                    cout << "----------------------------------------" << endl;
+                }
+                
+                lastSize = currentSize;
+            }
+        }
+        else
+        {
+            cout << "Ошибка открытия файла!" << endl;
+            break;
+        }
+        
+        // Задержка 1 секунда
+        for (int i = 0; i < 10000000; i++);
+        
+        if (_kbhit())
+        {
+            k = _getch();
+        }
+    }
+    
+    cout << "Программа завершена." << endl;
+    return 0;
+}
