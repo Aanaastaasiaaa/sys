@@ -5,26 +5,25 @@ using namespace std;
 
 int main()
 {
-    fstream f;
-    f.open("Z:/fi.txt");
+    ifstream f;
+    f.open("Z:/fi.txt", ios::ate| ios::binary);
     if (!f)
     {
         cout << ":(";
         exit(-1);
     }
+    streamsize last = f.tellg();
+    f.close();
     int k = _getch();
     while (k != 27)
     {
-        f.seekg(0,ios::end);
-        streamsize s1 = f.tellp();
-        streamsize s2 = f.tellp();
-        while (s1== s2)
+        ifstream f("Z:/fi.txt", ios::ate | ios::binary);
+        streamsize now = f.tellg();
+        f.close();
+        if (last!= now)
         {
-            s1 = s2;
-            
-            s2=f.tellp();
+            cout << "new";
+            last = now;
         }
-        cout << "new";
-        k = _getch();
     }
 }
