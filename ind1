@@ -1,0 +1,26 @@
+nums = []
+print("Введите последовательность чисел, заканчивающуюся нулем:")
+while True:
+    x = int(input())
+    if x == 0:
+        break
+    nums.append(x)
+R = int(input("Введите контрольное значение R: "))
+
+max_prod = -1
+n = len(nums)
+
+for i in range(n):
+    for j in range(i + 1, n):
+        prod = nums[i] * nums[j]
+        if prod % 6 == 0 and prod > max_prod:
+            max_prod = prod
+
+if max_prod == -1:
+    print("Подходящих пар не найдено.")
+else:
+    print(f"Наибольшее найденное значение R: {max_prod}")
+    if max_prod == R:
+        print("Контрольное значение верно.")
+    else:
+        print("Контрольное значение неверно.")
