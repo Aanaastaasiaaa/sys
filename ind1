@@ -1,26 +1,57 @@
-nums = []
-print("Введите последовательность чисел, заканчивающуюся нулем:")
-while True:
-    x = int(input())
-    if x == 0:
+n = int(input())
+
+parents = {}
+for _ in range(n - 1):
+    child, parent = input().split()
+    parents[child] = parent
+
+# Функция для получения всех предков элемента
+def get_ancestors(name):
+    ancestors = set()
+    while name in parents:
+        name = parents[name]n = int(input())
+parent = {}
+
+for i in range(n - 1):
+    child, p = input().split()
+    parent[child] = p
+
+a, b = input().split()
+
+x = b
+while x in parent:
+    x = parent[x]
+    if x == a:
+        print(1)
         break
-    nums.append(x)
-R = int(input("Введите контрольное значение R: "))
-
-max_prod = -1
-n = len(nums)
-
-for i in range(n):
-    for j in range(i + 1, n):
-        prod = nums[i] * nums[j]
-        if prod % 6 == 0 and prod > max_prod:
-            max_prod = prod
-
-if max_prod == -1:
-    print("Подходящих пар не найдено.")
 else:
-    print(f"Наибольшее найденное значение R: {max_prod}")
-    if max_prod == R:
-        print("Контрольное значение верно.")
+    x = a
+    while x in parent:
+        x = parent[x]
+        if x == b:
+            print(2)
+            break
     else:
-        print("Контрольное значение неверно.")
+        print(0)
+        ancestors.add(name)
+    return ancestors
+
+# Обрабатываем запросы
+while True:
+    try:
+        line = input()
+        if not line:
+            break
+        a, b = line.split()
+        
+        ancestors_a = get_ancestors(a)
+        ancestors_b = get_ancestors(b)
+        
+        if b in ancestors_a:
+            print(1)
+        elif a in ancestors_b:
+            print(2)
+        else:
+            print(0)
+    except EOFError:
+        break
