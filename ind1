@@ -1,57 +1,19 @@
-n = int(input())
+from collections import Counter
 
-parents = {}
-for _ in range(n - 1):
-    child, parent = input().split()
-    parents[child] = parent
+votes = Counter()
 
-# Функция для получения всех предков элемента
-def get_ancestors(name):
-    ancestors = set()
-    while name in parents:
-        name = parents[name]n = int(input())
-parent = {}
-
-for i in range(n - 1):
-    child, p = input().split()
-    parent[child] = p
-
-a, b = input().split()
-
-x = b
-while x in parent:
-    x = parent[x]
-    if x == a:
-        print(1)
-        break
-else:
-    x = a
-    while x in parent:
-        x = parent[x]
-        if x == b:
-            print(2)
-            break
-    else:
-        print(0)
-        ancestors.add(name)
-    return ancestors
-
-# Обрабатываем запросы
 while True:
     try:
-        line = input()
-        if not line:
-            break
-        a, b = line.split()
-        
-        ancestors_a = get_ancestors(a)
-        ancestors_b = get_ancestors(b)
-        
-        if b in ancestors_a:
-            print(1)
-        elif a in ancestors_b:
-            print(2)
-        else:
-            print(0)
+        name = input()
+        votes[name] += 1
     except EOFError:
         break
+
+total = sum(votes.values())
+candidates = votes.most_common()
+
+if candidates[0][1] > total / 2:
+    print(candidates[0][0])
+else:
+    print(candidates[0][0])
+    print(candidates[1][0])
