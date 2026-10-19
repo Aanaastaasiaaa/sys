@@ -1,0 +1,394 @@
+dependencies {
+    // ... уже существующие строки
+    implementation("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.0")
+}
+
+
+
+package com.example.contactdata
+
+data class Contact(
+    var lastName: String = "",
+    var firstName: String = "",
+    var middleName: String = "",
+    var phone: String = ""
+) {
+    // Сокращённое отображение для главного экрана: "Иванов И. И."
+    fun shortName(): String {
+        val l = lastName.ifBlank { "—" }
+        val f = firstName.firstOrNull()?.let { "$it." } ?: ""
+        val m = middleName.firstOrNull()?.let { "$it." } ?: ""
+        return "$l $f $m".trim()
+    }
+}
+
+
+
+package com.example.contactdata
+
+import androidx.lifecycle.ViewModel
+
+class ContactViewModel : ViewModel() {
+
+    // Список контактов
+    val contacts = mutableListOf<Contact>()
+
+    // Индекс текущего отображаемого контакта
+    var currentIndex: Int = 0
+
+    init {
+        // Пара контактов для примера — можно убрать
+        contacts.add(Contact("Иванов", "Иван", "Иванович", "8 (999) 999-99-99"))
+        contacts.add(Contact("Петров", "Пётр", "Петрович", "8 (888) 888-88-88"))
+    }
+
+    fun next(): Contact? {
+        if (contacts.isEmpty()) return null
+        currentIndex = (currentIndex + 1) % contacts.size
+        return contacts[currentIndex]
+    }
+
+    fun prev(): Contact? {
+        if (contacts.isEmpty()) return null
+        currentIndex = (currentIndex - 1 + contacts.size) % contacts.size
+        return contacts[currentIndex]
+    }
+
+    fun current(): Contact? =
+        contacts.getOrNull(currentIndex)
+
+    fun add(contact: Contact) {
+        contacts.add(contact)
+        currentIndex = contacts.size - 1
+    }
+
+    fun update(index: Int, contact: Contact) {
+        if (index in contacts.indices) {
+            contacts[index] = contact
+        }
+    }
+}
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDF7FB"
+    android:padding="24dp">
+
+    <!-- TextView с ФИО -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="—"
+        android:textSize="18sp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnPrev"
+        app:layout_constraintEnd_toStartOf="@id/btnNext" />
+
+    <!-- Стрелка влево -->
+    <ImageView
+        android:id="@+id/btnPrev"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="#555555"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_media_previous"
+        app:tint="#FFFFFF"
+        app:layout_constraintTop_toTopOf="@id/tvName"
+        app:layout_constraintBottom_toBottomOf="@id/tvName"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Стрелка вправо -->
+    <ImageView
+        android:id="@+id/btnNext"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="#555555"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_media_next"
+        app:tint="#FFFFFF"
+        app:layout_constraintTop_toTopOf="@id/tvName"
+        app:layout_constraintBottom_toBottomOf="@id/tvName"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Кнопка Добавить -->
+    <Button
+        android:id="@+id/btnAdd"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#4CAF50"
+        android:text="Добавить"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@id/btnEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Кнопка Изменить -->
+    <Button
+        android:id="@+id/btnEdit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="#FF9800"
+        android:text="Изменить"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FDF7FB"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="добавление/изменение значений"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Фамилия"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etFirstName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Имя"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etMiddleName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Отчество"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Телефон"
+        android:inputType="phone" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#4CAF50"
+        android:text="Сохранить"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>i
+
+
+
+
+
+
+
+package com.example.contactdata
+
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    private val viewModel: ContactViewModel by viewModels()
+
+    private lateinit var tvName: TextView
+    private lateinit var btnPrev: ImageView
+    private lateinit var btnNext: ImageView
+    private lateinit var btnAdd: Button
+    private lateinit var btnEdit: Button
+
+    // Регистрируем launcher для получения результата из EditActivity
+    private val editLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data ?: return@registerForActivityResult
+            val mode = data.getStringExtra("mode") ?: return@registerForActivityResult
+            val contact = Contact(
+                lastName   = data.getStringExtra("lastName").orEmpty(),
+                firstName  = data.getStringExtra("firstName").orEmpty(),
+                middleName = data.getStringExtra("middleName").orEmpty(),
+                phone      = data.getStringExtra("phone").orEmpty()
+            )
+            if (mode == "add") {
+                viewModel.add(contact)
+            } else {
+                viewModel.update(viewModel.currentIndex, contact)
+            }
+            refreshUI()
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        tvName  = findViewById(R.id.tvName)
+        btnPrev = findViewById(R.id.btnPrev)
+        btnNext = findViewById(R.id.btnNext)
+        btnAdd  = findViewById(R.id.btnAdd)
+        btnEdit = findViewById(R.id.btnEdit)
+
+        btnPrev.setOnClickListener {
+            viewModel.prev()
+            refreshUI()
+        }
+        btnNext.setOnClickListener {
+            viewModel.next()
+            refreshUI()
+        }
+
+        btnAdd.setOnClickListener {
+            // Открываем форму в режиме добавления
+            val intent = Intent(this, EditActivity::class.java)
+            intent.putExtra("mode", "add")
+            editLauncher.launch(intent)
+        }
+
+        btnEdit.setOnClickListener {
+            val current = viewModel.current() ?: return@setOnClickListener
+            val intent = Intent(this, EditActivity::class.java)
+            intent.putExtra("mode", "edit")
+            intent.putExtra("lastName",   current.lastName)
+            intent.putExtra("firstName",  current.firstName)
+            intent.putExtra("middleName", current.middleName)
+            intent.putExtra("phone",      current.phone)
+            editLauncher.launch(intent)
+        }
+
+        refreshUI()
+    }
+
+    private fun refreshUI() {
+        val c = viewModel.current()
+        tvName.text = c?.shortName() ?: "Нет данных"
+    }
+}
+
+
+
+
+
+
+
+
+package com.example.contactdata
+
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+
+class EditActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_edit)
+
+        val etLastName   = findViewById<EditText>(R.id.etLastName)
+        val etFirstName  = findViewById<EditText>(R.id.etFirstName)
+        val etMiddleName = findViewById<EditText>(R.id.etMiddleName)
+        val etPhone      = findViewById<EditText>(R.id.etPhone)
+        val btnSave      = findViewById<Button>(R.id.btnSave)
+
+        val mode = intent.getStringExtra("mode") ?: "add"
+
+        if (mode == "edit") {
+            etLastName.setText(intent.getStringExtra("lastName").orEmpty())
+            etFirstName.setText(intent.getStringExtra("firstName").orEmpty())
+            etMiddleName.setText(intent.getStringExtra("middleName").orEmpty())
+            etPhone.setText(intent.getStringExtra("phone").orEmpty())
+        }
+
+        btnSave.setOnClickListener {
+            val result = Intent().apply {
+                putExtra("mode", mode)
+                putExtra("lastName",   etLastName.text.toString().trim())
+                putExtra("firstName",  etFirstName.text.toString().trim())
+                putExtra("middleName", etMiddleName.text.toString().trim())
+                putExtra("phone",      etPhone.text.toString().trim())
+            }
+            setResult(Activity.RESULT_OK, result)
+            finish()
+        }
+    }
+}
+
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ContactData"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".EditActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
+
+
+
